@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>パスワード付きチャット</title>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    #messages { height: 300px; overflow-y: scroll; border: 1px solid #ccc; padding: 10px; margin-bottom: 10px;}
+    .message { margin-bottom: 10px; }
+  </style>
+</head>
+<body>
+  <!-- パスワード画面 -->
+  <div id="passwordScreen">
+    <h3>パスワードを入力してください</h3>
+    <input type="password" id="passwordInput" placeholder="パスワード">
+    <button onclick="checkPassword()">確認</button>
+  </div>
+
+  <!-- チャット画面 -->
+  <div id="chatScreen" style="display:none;">
+    <h2>チャットルーム</h2>
+    <div id="messages"></div>
+    <input type="text" id="name" placeholder="名前"><br>
+    <input type="text" id="message" placeholder="メッセージ">
+    <button onclick="sendMessage()">送信</button>
+  </div>
+
+  <!-- Firebase & JavaScript -->
+  <script type="module">
+    // 🔽 ここに自分のFirebase構成コードを貼り付ける（下の例を参考に）
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyDka0qWoys874fA2GbVhGGecLtCoze2Pzw",
+      authDomain: "zubudoro-chat.firebaseapp.com",
+      projectId: "zubudoro-chat",
+      storageBucket: "zubudoro-chat.firebasestorage.app",
+      messagingSenderId: "476549774973",
+      appId: "1:476549774973:web:3b4923256340bd4a3c3b14"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const messagesRef = collection(db, "messages");
+
+    // リアルタイム取得
+    const q = query(messagesRef, orderBy("timestamp"));
+    onSnapshot(q, (snapshot) => {
+      const messagesDiv = document.getElementById("messages");
+      messagesDiv.innerHTML = "";
+      snapshot.forEach((doc) => {
+        const data = doc.data();
+        messagesDiv.innerHTML += `<div class="message"><strong>${data.name}</strong>: ${data.message}</div>`;
+      });
+    });
+
+    // メッセージ送信
+    window.sendMessage = async () => {
+      const name = document.getElementById("name").value;
+      const message = document.getElementById("message").value;
+      if (name && message) {
+        await addDoc(messagesRef, {
+          name: name,
+          message: message,
+          timestamp: new Date()
+        });
+        document.getElementById("message").value = "";
+      }
+    };
+
+    // パスワードロック
+    const correctPassword = "0728";  //
+    window.checkPassword = function() {
+      const input = document.getElementById("passwordInput").value;
+      if (input === correctPassword) {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("chatScreen").style.display = "block";
+      } else {
+        alert("パスワードが違います");
+      }
+    };
+  </script>
+</body>
+</html>
