@@ -1,117 +1,107 @@
 <!DOCTYPE html>
-<html lang="ja">
+<html>
 <head>
   <meta charset="UTF-8">
-  <title>🨠Nailie</title>
+  <title>Nailie</title>
   <style>
     body {
       font-family: "Arial", sans-serif;
-      background: linear-gradient(to right, #ccf2f4, #d9f99d);
+      background: linear-gradient(to bottom, #b2f0ff, #d6ffb2);
       margin: 0;
-      padding: 0;
-      display: flex;
-      justify-content: center;
+      padding: 10px;
+      font-size: 18px;
+      box-sizing: border-box;
     }
-    .container {
-      width: 100%;
+    #passwordScreen, #chatScreen {
       max-width: 100%;
+      width: 100%;
+    }
+    img {
+      width: 100%;
+      max-width: 400px;
+      height: auto;
+      display: block;
+      margin: 0 auto 10px;
+    }
+    input, textarea, select, button {
+      font-size: 20px;
+      margin: 5px 0;
+      width: 100%;
+      box-sizing: border-box;
       padding: 10px;
     }
     #messages {
-      height: 500px;
-      overflow-y: scroll;
-      border: 2px solid #ccc;
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ccc;
       padding: 10px;
+      background-color: #fff;
       margin-bottom: 10px;
-      background: white;
+      font-size: 18px;
     }
     .message {
-      margin: 10px 0;
-      padding: 16px 24px;
-      border-radius: 12px;
-      max-width: 100%;
+      margin-bottom: 15px;
+      padding: 10px;
+      border-radius: 10px;
+      max-width: 90%;
       clear: both;
-      word-wrap: break-word;
-      position: relative;
     }
     .kenji {
-      background-color: #c6f6d5;
+      background-color: #ccffcc;
       float: left;
+      color: green;
     }
     .nacchan {
-      background-color: #bee3f8;
+      background-color: #cce5ff;
       float: right;
-      text-align: right;
+      color: blue;
     }
     .timestamp {
-      font-size: 0.7em;
-      color: #666;
-      margin-top: 4px;
-    }
-    textarea {
-      width: 100%;
-      height: 120px;
-      resize: vertical;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    select, input[type="file"] {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 10px;
-    }
-    img.chat-image {
-      max-width: 200px;
       display: block;
+      font-size: 14px;
+      color: #666;
       margin-top: 5px;
-      border-radius: 8px;
+    }
+    .clear {
+      clear: both;
     }
     .stamps button {
-      font-size: 24px;
+      font-size: 28px;
       margin-right: 5px;
-      padding: 5px 10px;
     }
   </style>
 </head>
 <body>
-  <div class="container">
-    <div id="passwordScreen">
-      <img src="nail.jpeg" alt="ネイル画像" style="width: 100%; border-radius: 10px;">
-      <h3>パスワードを入力してください</h3>
-      <input type="password" id="passwordInput" placeholder="パスワード">
-      <button onclick="checkPassword()">確認</button>
+  <div id="passwordScreen">
+    <img src="4436E560-935F-437C-AFF9-0CA7F61A5273.jpeg" alt="ネイル画像">
+    <h3>パスワードを入力してください</h3>
+    <input type="password" id="passwordInput" placeholder="パスワード">
+    <button onclick="checkPassword()">確認</button>
+  </div>
+
+  <div id="chatScreen" style="display:none;">
+    <h2>Nailie</h2>
+    <div id="messages"></div>
+
+    <select id="name">
+      <option value="けんじ">けんじ</option>
+      <option value="なっちゃん">なっちゃん</option>
+    </select>
+    <textarea id="message" placeholder="メッセージ" rows="4"></textarea>
+    <input type="file" id="imageInput">
+    <div class="stamps">
+      <button onclick="sendStamp('👍')">👍</button>
+      <button onclick="sendStamp('✨')">✨</button>
+      <button onclick="sendStamp('🥺')">🥺</button>
+      <button onclick="sendStamp('❤️')">❤️</button>
+      <button onclick="sendStamp('🫠')">🫠</button>
     </div>
-
-    <div id="chatScreen" style="display:none;">
-      <h2>🨠Nailie</h2>
-      <div id="messages"></div>
-      <select id="name">
-        <option value="けんじ">けんじ</option>
-        <option value="なっちゃん">なっちゃん</option>
-      </select><br>
-
-      <div class="stamps">
-        <button onclick="addStamp('👍')">👍</button>
-        <button onclick="addStamp('✨')">✨</button>
-        <button onclick="addStamp('🥺')">🥺</button>
-        <button onclick="addStamp('❤️')">❤️</button>
-        <button onclick="addStamp('🫠')">🫠</button>
-      </div>
-
-      <textarea id="message" placeholder="メッセージを入力（改行もOK）"></textarea><br>
-      <input type="file" id="imageInput"><br>
-      <button onclick="sendMessage()">送信</button>
-    </div>
+    <button onclick="sendMessage()">送信</button>
   </div>
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import {
-      getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import {
-      getStorage, ref, uploadBytes, getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDka0qWoys874fA2GbVhGGecLtCoze2Pzw",
@@ -124,7 +114,6 @@
 
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
-    const storage = getStorage(app);
     const messagesRef = collection(db, "messages");
 
     const q = query(messagesRef, orderBy("timestamp"));
@@ -133,53 +122,56 @@
       messagesDiv.innerHTML = "";
       snapshot.forEach((doc) => {
         const data = doc.data();
-        const className = data.name === "けんじ" ? "kenji" : "nacchan";
-        const date = data.timestamp?.toDate?.() || new Date();
-        const formatted = date.toLocaleString("ja-JP", {
-          year: "numeric", month: "2-digit", day: "2-digit",
-          hour: "2-digit", minute: "2-digit"
-        });
-
-        let html = `<div class="message ${className}">
-                      <strong>${data.name}</strong><br>
-                      ${data.message.replace(/\n/g, '<br>')}`;
+        const cssClass = data.name === "けんじ" ? "kenji" : "nacchan";
+        let messageHtml = `<div class="message ${cssClass}"><strong>${data.name}</strong>: ${data.message}`;
         if (data.imageUrl) {
-          html += `<br><img src="${data.imageUrl}" class="chat-image">`;
+          messageHtml += `<br><img src="${data.imageUrl}" style="max-width:100%; margin-top:10px;">`;
         }
-        html += `<div class="timestamp">${formatted}</div></div>`;
-        messagesDiv.innerHTML += html;
+        messageHtml += `<span class="timestamp">${new Date(data.timestamp?.toDate()).toLocaleString()}</span></div><div class="clear"></div>`;
+        messagesDiv.innerHTML += messageHtml;
       });
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 
+    async function uploadImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result);  // base64 URL
+        reader.readAsDataURL(file);
+      });
+    }
+
     window.sendMessage = async () => {
       const name = document.getElementById("name").value;
-      const messageInput = document.getElementById("message");
+      const message = document.getElementById("message").value.trim();
       const file = document.getElementById("imageInput").files[0];
       let imageUrl = null;
 
+      if (!name || (!message && !file)) return;
+
       if (file) {
-        const imageRef = ref(storage, `images/${Date.now()}_${file.name}`);
-        await uploadBytes(imageRef, file);
-        imageUrl = await getDownloadURL(imageRef);
+        imageUrl = await uploadImage(file);
       }
 
-      if (name && (messageInput.value || imageUrl)) {
-        await addDoc(messagesRef, {
-          name: name,
-          message: messageInput.value,
-          imageUrl: imageUrl,
-          timestamp: serverTimestamp()
-        });
-        messageInput.value = "";
-        document.getElementById("imageInput").value = "";
-      }
+      await addDoc(messagesRef, {
+        name,
+        message,
+        imageUrl,
+        timestamp: new Date()
+      });
+
+      document.getElementById("message").value = "";
+      document.getElementById("imageInput").value = "";
     };
 
-    window.addStamp = (emoji) => {
-      const input = document.getElementById("message");
-      input.value += emoji;
-      input.focus();
+    window.sendStamp = async (stamp) => {
+      const name = document.getElementById("name").value;
+      await addDoc(messagesRef, {
+        name,
+        message: stamp,
+        imageUrl: null,
+        timestamp: new Date()
+      });
     };
 
     const correctPassword = "0728";
