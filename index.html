@@ -7,14 +7,12 @@
     body {
       font-family: "Arial", sans-serif;
       background: linear-gradient(to right, #ccf2f4, #d9f99d);
-      padding: 20px;
-      display: flex;
-      justify-content: center;
+      padding: 10px;
     }
 
     .container {
-      max-width: 400px;
       width: 100%;
+      max-width: 400px;
     }
 
     #messages {
@@ -27,12 +25,13 @@
     }
 
     .message {
-      margin: 10px;
+      margin: 10px 0;
       padding: 8px 12px;
       border-radius: 12px;
       max-width: 85%;
       clear: both;
       word-wrap: break-word;
+      position: relative;
     }
 
     .kenji {
@@ -44,6 +43,12 @@
       background-color: #bee3f8;
       float: right;
       text-align: right;
+    }
+
+    .timestamp {
+      font-size: 0.7em;
+      color: #666;
+      margin-top: 4px;
     }
 
     #chatScreen textarea {
@@ -64,6 +69,7 @@
       max-width: 200px;
       display: block;
       margin-top: 5px;
+      border-radius: 8px;
     }
 
     #passwordScreen img {
@@ -103,7 +109,7 @@
 
     <!-- チャット画面 -->
     <div id="chatScreen" style="display:none;">
-      <h2>🫠ネイルの森💅</h2>
+      <h2>Nailie</h2>
       <div id="messages"></div>
       <select id="name">
         <option value="けんじ">けんじ</option>
@@ -147,11 +153,19 @@
       snapshot.forEach((doc) => {
         const data = doc.data();
         const className = data.name === "けんじ" ? "kenji" : "nacchan";
-        let html = `<div class="message ${className}"><strong>${data.name}</strong><br>${data.message.replace(/\n/g, '<br>')}`;
+        const date = data.timestamp?.toDate?.() || new Date();
+        const formatted = date.toLocaleString("ja-JP", {
+          year: "numeric", month: "2-digit", day: "2-digit",
+          hour: "2-digit", minute: "2-digit"
+        });
+
+        let html = `<div class="message ${className}">
+                      <strong>${data.name}</strong><br>
+                      ${data.message.replace(/\n/g, '<br>')}`;
         if (data.imageUrl) {
           html += `<br><img src="${data.imageUrl}" class="chat-image">`;
         }
-        html += "</div>";
+        html += `<div class="timestamp">${formatted}</div></div>`;
         messagesDiv.innerHTML += html;
       });
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
