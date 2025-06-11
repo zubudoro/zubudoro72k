@@ -4,15 +4,20 @@
   <meta charset="UTF-8">
   <title>Nailie</title>
   <style>
-    body {
+    html, body {
       font-family: "Arial", sans-serif;
       background: linear-gradient(to right, #ccf2f4, #d9f99d);
       padding: 10px;
+      margin: 0;
+      width: 100vw;
+      overflow-x: hidden;
     }
 
     .container {
-      width: 100%;
       max-width: 400px;
+      width: 100%;
+      margin: 0;
+      padding: 0;
     }
 
     #messages {
@@ -22,16 +27,18 @@
       padding: 10px;
       margin-bottom: 10px;
       background: white;
+      font-size: 14px;
     }
 
     .message {
-      margin: 10px 0;
-      padding: 8px 12px;
+      margin: 8px 0;
+      padding: 6px 10px;
       border-radius: 12px;
       max-width: 85%;
       clear: both;
       word-wrap: break-word;
       position: relative;
+      font-size: 14px;
     }
 
     .kenji {
@@ -46,7 +53,7 @@
     }
 
     .timestamp {
-      font-size: 0.7em;
+      font-size: 11px;
       color: #666;
       margin-top: 4px;
     }
@@ -57,12 +64,16 @@
       resize: vertical;
       padding: 6px;
       margin-bottom: 5px;
+      font-size: 14px;
     }
 
-    #chatScreen select, #chatScreen input[type="file"] {
+    #chatScreen select,
+    #chatScreen input[type="file"],
+    #chatScreen button {
       width: 100%;
       margin-bottom: 5px;
       padding: 6px;
+      font-size: 14px;
     }
 
     img.chat-image {
@@ -84,15 +95,18 @@
       padding: 6px;
       margin-top: 10px;
       margin-bottom: 10px;
+      font-size: 14px;
     }
 
     #passwordScreen button {
       width: 100%;
       padding: 8px;
+      font-size: 14px;
     }
 
-    h3 {
+    h2, h3 {
       margin-top: 10px;
+      font-size: 18px;
     }
   </style>
 </head>
@@ -133,12 +147,12 @@
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyDka0qWoys874fA2GbVhGGecLtCoze2Pzw",
-      authDomain: "zubudoro-chat.firebaseapp.com",
-      projectId: "zubudoro-chat",
-      storageBucket: "zubudoro-chat.firebasestorage.app",
-      messagingSenderId: "476549774973",
-      appId: "1:476549774973:web:3b4923256340bd4a3c3b14"
+      apiKey: "あなたのAPIキー",
+      authDomain: "あなたのauthDomain",
+      projectId: "あなたのprojectId",
+      storageBucket: "あなたのstorageBucket",
+      messagingSenderId: "あなたのmessagingSenderId",
+      appId: "あなたのappId"
     };
 
     const app = initializeApp(firebaseConfig);
