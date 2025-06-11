@@ -2,157 +2,124 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>Nailie</title>
+  <title>🨠Nailie</title>
   <style>
-    html, body {
+    body {
       font-family: "Arial", sans-serif;
       background: linear-gradient(to right, #ccf2f4, #d9f99d);
-      padding: 10px;
-      margin: 0;
-      width: 100vw;
-      overflow-x: hidden;
-    }
-
-    .container {
-      max-width: 400px;
-      width: 100%;
       margin: 0;
       padding: 0;
+      display: flex;
+      justify-content: center;
     }
-
+    .container {
+      width: 100%;
+      max-width: 100%;
+      padding: 10px;
+    }
     #messages {
-      height: 400px;
+      height: 500px;
       overflow-y: scroll;
       border: 2px solid #ccc;
       padding: 10px;
       margin-bottom: 10px;
       background: white;
-      font-size: 14px;
     }
-
     .message {
-      margin: 8px 0;
-      padding: 6px 10px;
+      margin: 10px 0;
+      padding: 16px 24px;
       border-radius: 12px;
-      max-width: 85%;
+      max-width: 100%;
       clear: both;
       word-wrap: break-word;
       position: relative;
-      font-size: 14px;
     }
-
     .kenji {
       background-color: #c6f6d5;
       float: left;
     }
-
     .nacchan {
       background-color: #bee3f8;
       float: right;
       text-align: right;
     }
-
     .timestamp {
-      font-size: 11px;
+      font-size: 0.7em;
       color: #666;
       margin-top: 4px;
     }
-
-    #chatScreen textarea {
+    textarea {
       width: 100%;
-      height: 60px;
+      height: 120px;
       resize: vertical;
-      padding: 6px;
-      margin-bottom: 5px;
-      font-size: 14px;
+      padding: 10px;
+      margin-bottom: 10px;
     }
-
-    #chatScreen select,
-    #chatScreen input[type="file"],
-    #chatScreen button {
+    select, input[type="file"] {
       width: 100%;
-      margin-bottom: 5px;
-      padding: 6px;
-      font-size: 14px;
+      padding: 10px;
+      margin-bottom: 10px;
     }
-
     img.chat-image {
       max-width: 200px;
       display: block;
       margin-top: 5px;
       border-radius: 8px;
     }
-
-    #passwordScreen img {
-      width: 100%;
-      max-width: 100%;
-      height: auto;
-      border-radius: 10px;
-    }
-
-    #passwordScreen input[type="password"] {
-      width: 100%;
-      padding: 6px;
-      margin-top: 10px;
-      margin-bottom: 10px;
-      font-size: 14px;
-    }
-
-    #passwordScreen button {
-      width: 100%;
-      padding: 8px;
-      font-size: 14px;
-    }
-
-    h2, h3 {
-      margin-top: 10px;
-      font-size: 18px;
+    .stamps button {
+      font-size: 24px;
+      margin-right: 5px;
+      padding: 5px 10px;
     }
   </style>
 </head>
 <body>
   <div class="container">
-
-    <!-- パスワード入力画面 -->
     <div id="passwordScreen">
-      <img src="nail.jpeg" alt="ネイル画像">
+      <img src="nail.jpeg" alt="ネイル画像" style="width: 100%; border-radius: 10px;">
       <h3>パスワードを入力してください</h3>
       <input type="password" id="passwordInput" placeholder="パスワード">
       <button onclick="checkPassword()">確認</button>
     </div>
 
-    <!-- チャット画面 -->
     <div id="chatScreen" style="display:none;">
-      <h2>Nailie</h2>
+      <h2>🨠Nailie</h2>
       <div id="messages"></div>
       <select id="name">
         <option value="けんじ">けんじ</option>
         <option value="なっちゃん">なっちゃん</option>
       </select><br>
+
+      <div class="stamps">
+        <button onclick="addStamp('👍')">👍</button>
+        <button onclick="addStamp('✨')">✨</button>
+        <button onclick="addStamp('🥺')">🥺</button>
+        <button onclick="addStamp('❤️')">❤️</button>
+        <button onclick="addStamp('🫠')">🫠</button>
+      </div>
+
       <textarea id="message" placeholder="メッセージを入力（改行もOK）"></textarea><br>
       <input type="file" id="imageInput"><br>
       <button onclick="sendMessage()">送信</button>
     </div>
-
   </div>
 
-  <!-- Firebase & JS -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
     import {
-      getFirestore, collection, addDoc, onSnapshot, query, orderBy
+      getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
     import {
       getStorage, ref, uploadBytes, getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
-      apiKey: "あなたのAPIキー",
-      authDomain: "あなたのauthDomain",
-      projectId: "あなたのprojectId",
-      storageBucket: "あなたのstorageBucket",
-      messagingSenderId: "あなたのmessagingSenderId",
-      appId: "あなたのappId"
+      apiKey: "AIzaSyDka0qWoys874fA2GbVhGGecLtCoze2Pzw",
+      authDomain: "zubudoro-chat.firebaseapp.com",
+      projectId: "zubudoro-chat",
+      storageBucket: "zubudoro-chat.firebasestorage.app",
+      messagingSenderId: "476549774973",
+      appId: "1:476549774973:web:3b4923256340bd4a3c3b14"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -187,26 +154,32 @@
 
     window.sendMessage = async () => {
       const name = document.getElementById("name").value;
-      const message = document.getElementById("message").value;
+      const messageInput = document.getElementById("message");
       const file = document.getElementById("imageInput").files[0];
-
       let imageUrl = null;
+
       if (file) {
         const imageRef = ref(storage, `images/${Date.now()}_${file.name}`);
         await uploadBytes(imageRef, file);
         imageUrl = await getDownloadURL(imageRef);
       }
 
-      if (name && (message || imageUrl)) {
+      if (name && (messageInput.value || imageUrl)) {
         await addDoc(messagesRef, {
           name: name,
-          message: message,
+          message: messageInput.value,
           imageUrl: imageUrl,
-          timestamp: new Date()
+          timestamp: serverTimestamp()
         });
-        document.getElementById("message").value = "";
+        messageInput.value = "";
         document.getElementById("imageInput").value = "";
       }
+    };
+
+    window.addStamp = (emoji) => {
+      const input = document.getElementById("message");
+      input.value += emoji;
+      input.focus();
     };
 
     const correctPassword = "0728";
