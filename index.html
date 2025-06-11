@@ -17,7 +17,7 @@
     }
 
     #messages {
-      height: 400px;
+      height: 800px; /* 高さを倍に拡大 */
       overflow-y: scroll;
       border: 2px solid #ccc;
       padding: 10px;
@@ -172,30 +172,38 @@
     window.sendMessage = async () => {
       const name = document.getElementById("name").value;
       const messageInput = document.getElementById("message");
-      const message = messageInput.value;
+      const message = messageInput.value.trim();
       const fileInput = document.getElementById("imageInput");
       const file = fileInput.files[0];
 
       let imageUrl = null;
-      if (file) {
-        const imageRef = ref(storage, `images/${Date.now()}_${file.name}`);
-        await uploadBytes(imageRef, file);
-        imageUrl = await getDownloadURL(imageRef);
-      }
 
-      if (name && (message || imageUrl)) {
-        await addDoc(messagesRef, {
-          name: name,
-          message: message,
-          imageUrl: imageUrl,
-          timestamp: serverTimestamp()
-        });
-        messageInput.value = "";
-        fileInput.value = "";
+      try {
+        if (file) {
+          const imageRef = ref(storage, `images/${Date.now()}_${file.name}`);
+          const snapshot = await uploadBytes(imageRef, file);
+          imageUrl = await getDownloadURL(snapshot.ref);
+        }
+
+        if (name && (message || imageUrl)) {
+          await addDoc(messagesRef, {
+            name: name,
+            message: message,
+            imageUrl: imageUrl,
+            timestamp: serverTimestamp()
+          });
+
+          // 入力欄をリセット
+          messageInput.value = "";
+          fileInput.value = "";
+        }
+      } catch (error) {
+        console.error("送信エラー:", error);
+        alert("メッセージの送信に失敗しました");
       }
     };
 
-    const correctPassword = "0728";
+    const correctPassword = "0728    ";
     window.checkPassword = function() {
       const input = document.getElementById("passwordInput").value;
       if (input === correctPassword) {
