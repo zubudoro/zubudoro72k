@@ -3,127 +3,141 @@
 <head>
   <meta charset="UTF-8">
   <title>Nailie</title>
-
-  <!-- Google Fonts: M PLUS Rounded -->
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
 
   <style>
-    body {
+    html, body {
       font-family: 'M PLUS Rounded 1c', sans-serif;
       background: linear-gradient(to right, #ccf2f4, #d9f99d);
       padding: 0;
       margin: 0;
+      overflow-x: hidden;
     }
+
     .container {
-      max-width: 800px;
-      margin: auto;
-      padding: 20px;
+      width: 100vw;
+      margin: 0 auto;
+      padding: 0;
     }
+
     #messages {
-      height: 800px;
-      overflow-y: scroll;
+      height: 960px;
+      overflow-y: auto;
       border: 2px solid #ccc;
       padding: 10px;
       margin-bottom: 10px;
       background: white;
-      font-size: 16px;
+      font-size: 24px;
     }
+
     .message {
       display: flex;
       align-items: flex-end;
-      margin: 10px 0;
-      max-width: 70%;
+      margin: 12px 0;
+      max-width: 90%;
       word-wrap: break-word;
-      padding: 10px;
-      border-radius: 16px;
-      position: relative;
+      padding: 14px;
+      border-radius: 18px;
+      font-size: 24px;
     }
+
     .message .icon {
-      width: 40px;
-      height: 40px;
+      width: 48px;
+      height: 48px;
       border-radius: 50%;
-      margin: 0 8px;
+      margin: 0 10px;
     }
+
     .kenji {
       background-color: #c6f6d5;
       margin-left: auto;
       flex-direction: row-reverse;
     }
+
     .nacchan {
       background-color: #bee3f8;
       margin-right: auto;
     }
+
     .message time {
       display: block;
-      font-size: 12px;
+      font-size: 16px;
       color: gray;
-      margin-top: 4px;
+      margin-top: 6px;
       text-align: right;
     }
+
     #chatScreen textarea {
       width: 100%;
-      min-height: 60px;
-      max-height: 200px;
+      min-height: 72px;
+      font-size: 24px;
+      padding: 8px;
+      margin-bottom: 10px;
       resize: none;
-      font-size: 16px;
-      padding: 6px;
-      margin-bottom: 5px;
       box-sizing: border-box;
       overflow-y: auto;
     }
+
     #chatScreen select,
     #chatScreen input[type="file"],
     #chatScreen button {
       width: 100%;
+      font-size: 24px;
+      padding: 14px;
       margin-bottom: 10px;
-      font-size: 18px;
-      padding: 12px;
       box-sizing: border-box;
     }
+
     #chatScreen button {
       background-color: #4caf50;
       color: white;
       border: none;
-      border-radius: 8px;
-      cursor: pointer;
+      border-radius: 10px;
+      font-size: 26px;
     }
+
     #chatScreen button:hover {
       background-color: #45a049;
     }
+
     img.chat-image {
-      max-width: 200px;
-      display: block;
-      margin-top: 5px;
-      border-radius: 8px;
-    }
-    #passwordScreen img {
-      width: 100%;
       max-width: 100%;
-      height: auto;
+      display: block;
+      margin-top: 8px;
       border-radius: 10px;
     }
+
+    #passwordScreen img {
+      width: 100vw;
+      height: auto;
+      border-radius: 0;
+      display: block;
+    }
+
     #passwordScreen input[type="password"],
     #passwordScreen button {
       width: 100%;
-      padding: 6px;
-      font-size: 16px;
+      padding: 10px;
+      font-size: 22px;
       margin-top: 10px;
       box-sizing: border-box;
     }
+
     h2, h3 {
+      font-size: 28px;
       margin: 10px 0;
-      font-size: 24px;
+      text-align: center;
     }
   </style>
 </head>
+
 <body>
   <div class="container">
-
     <!-- パスワード入力画面 -->
     <div id="passwordScreen">
       <img src="nail2.jpeg" alt="ネイル画像">
       <h3>パスワードを入力してください</h3>
-      <input type="password" id="passwordInput" placeholder="パスワード" autocomplete="off">
+      <input type="password" id="passwordInput" placeholder="パスワード">
       <button onclick="checkPassword()">確認</button>
     </div>
 
@@ -134,12 +148,11 @@
       <select id="name">
         <option value="なっちゃん" selected>なっちゃん</option>
         <option value="けんじ">けんじ</option>
-      </select><br>
-      <textarea id="message" placeholder="メッセージを入力（改行もOK）" autocomplete="off"></textarea><br>
-      <input type="file" id="imageInput" accept="image/*"><br>
+      </select>
+      <textarea id="message" placeholder="メッセージを入力（改行もOK）"></textarea>
+      <input type="file" id="imageInput" accept="image/*">
       <button onclick="sendMessage()">送信</button>
     </div>
-
   </div>
 
   <script type="module">
@@ -166,13 +179,15 @@
     const messagesRef = collection(db, "messages");
 
     const q = query(messagesRef, orderBy("timestamp", "asc"));
+    const messagesDiv = document.getElementById("messages");
+
     onSnapshot(q, (snapshot) => {
-      const messagesDiv = document.getElementById("messages");
       messagesDiv.innerHTML = "";
       snapshot.forEach((doc) => {
         const data = doc.data();
         const cls = data.name === "けんじ" ? "kenji" : "nacchan";
         const iconUrl = data.name === "けんじ" ? "kenji.png" : "nacchan.png";
+
         let html = `<div class="message ${cls}">
                       <img src="${iconUrl}" class="icon">
                       <div><strong>${data.name}</strong><br>${data.message.replace(/\n/g, '<br>')}`;
@@ -181,13 +196,10 @@
         }
         if (data.timestamp?.toDate) {
           html += `<time>${data.timestamp.toDate().toLocaleString()}</time>`;
-        } else {
-          html += `<time>送信時刻不明</time>`;
         }
         html += `</div></div>`;
         messagesDiv.innerHTML += html;
       });
-      // 最新メッセージをデフォルトで表示
       messagesDiv.scrollTop = messagesDiv.scrollHeight;
     });
 
@@ -199,7 +211,7 @@
       const message = msgEl.value.trim();
 
       if (!message && !file) {
-        alert("テキストか画像を入力してください");
+        alert("メッセージか画像を入力してください");
         return;
       }
 
@@ -207,7 +219,7 @@
       try {
         if (file) {
           if (!file.type.startsWith("image/")) {
-            alert("画像ファイルのみアップロードできます");
+            alert("画像ファイルのみアップロード可能です");
             return;
           }
           const imageRef = ref(storage, `images/${Date.now()}_${file.name}`);
@@ -227,16 +239,18 @@
         resizeTextarea();
       } catch (err) {
         console.error("送信エラー:", err);
-        alert("メッセージの送信に失敗しました");
+        alert("送信に失敗しました。もう一度お試しください。");
       }
     };
 
-    const correctPassword = "0728";
     window.checkPassword = function() {
-      const val = document.getElementById("passwordInput").value;
-      if (val === correctPassword) {
+      const input = document.getElementById("passwordInput").value;
+      if (input === "0728") {
         document.getElementById("passwordScreen").style.display = "none";
         document.getElementById("chatScreen").style.display = "block";
+        setTimeout(() => {
+          messagesDiv.scrollTop = messagesDiv.scrollHeight;
+        }, 500);
       } else {
         alert("パスワードが違います");
       }
