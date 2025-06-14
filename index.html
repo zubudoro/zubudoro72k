@@ -204,7 +204,9 @@
         html += `</div></div>`;
         messagesDiv.innerHTML += html;
       });
-      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+      setTimeout(() => {
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}, 100); // 100ミリ秒後にスクロール
     });
 
     window.sendMessage = async () => {
