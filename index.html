@@ -20,10 +20,12 @@
     }
 
     #passwordScreen img {
-      width: 100%;
-      height: auto;
-      border-radius: 10px;
-    }
+  width: 100vw;     /* ビューポートの横幅に合わせる */
+  height: auto;
+  display: block;   /* 画像下の余白防止 */
+  margin: 0;        /* 余白なし */
+  border-radius: 0; /* 角丸を無効にする場合 */
+}
 
     #passwordScreen input[type="password"],
     #passwordScreen button {
