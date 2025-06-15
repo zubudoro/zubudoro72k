@@ -1,121 +1,176 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>Nailie</title>
-  <link rel="icon" href="favicon.ico">
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js"></script>
-  <script type="module" src="https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js"></script>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
   <style>
     body {
-      font-family: 'Comic Sans MS', cursive, sans-serif;
+      font-family: 'M PLUS Rounded 1c', sans-serif;
       background: linear-gradient(to right, #ccf2f4, #d9f99d);
-      padding: 0;
       margin: 0;
+      padding: 0;
     }
-    #passwordPage, #userSelectPage, #chatPage {
-      display: none;
-      padding: 1em;
-    }
-    textarea {
-      width: 90%;
-      min-height: 3em;
-      resize: none;
-      font-size: 1em;
-    }
-    .message {
-      max-width: 60%;
-      padding: 0.5em;
-      margin: 0.5em;
-      border-radius: 1em;
-      position: relative;
-      box-shadow: 2px 2px 6px #ccc;
-      clear: both;
-    }
-    .left {
-      background: #ccf2f4;
-      float: left;
-      text-align: left;
-    }
-    .right {
-      background: #d9f99d;
-      float: right;
-      text-align: right;
-    }
-    .message::after {
-      content: "";
-      position: absolute;
-      bottom: 0;
-      width: 0;
-      height: 0;
-      border: 10px solid transparent;
-    }
-    .left::after {
-      left: -20px;
-      border-right-color: #ccf2f4;
-      border-left: none;
-    }
-    .right::after {
-      right: -20px;
-      border-left-color: #d9f99d;
-      border-right: none;
-    }
-    .message-time {
-      font-size: 0.8em;
-      color: gray;
-    }
-    img.uploaded {
+
+    .container {
       max-width: 100%;
-      margin-top: 0.5em;
+      padding: 10px;
     }
-    img.icon {
+
+    #passwordScreen img {
+  width: 100vw;     /* ビューポートの横幅に合わせる */
+  height: auto;
+  display: block;   /* 画像下の余白防止 */
+  margin: 0;        /* 余白なし */
+  border-radius: 0; /* 角丸を無効にする場合 */
+}
+
+    #passwordScreen input[type="password"],
+    #passwordScreen button {
+      width: 100%;
+      padding: 12px;
+      font-size: 14px;
+      margin-top: 10px;
+    }
+
+    #chatScreen {
+      display: none;
+    }
+
+    h2, h3 {
+      margin: 10px 0;
+      font-size: 18px;
+    }
+
+    #messages {
+      height: 480px; /* 元の半分 */
+      overflow-y: scroll;
+      border: 2px solid #ccc;
+      padding: 10px;
+      margin-bottom: 10px;
+      background: white;
+      font-size: 12px;
+    }
+
+    .message {
+      margin: 6px 0;
+      padding: 6px;
+      border-radius: 12px;
+      max-width: 70%;
+      word-wrap: break-word;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .kenji {
+      background-color: #c6f6d5;
+      float: left;
+      clear: both;
+      flex-direction: row;
+    }
+
+    .nacchan {
+      background-color: #bee3f8;
+      float: right;
+      clear: both;
+      flex-direction: row-reverse;
+      margin-left: auto;
+    }
+
+    .message img.chat-icon {
       width: 24px;
       height: 24px;
-      border-radius: 50%;
-      vertical-align: middle;
+      margin: 0 6px;
+    }
+
+    .message-content {
+      flex: 1;
+    }
+
+    .message time {
+      display: block;
+      font-size: 10px;
+      color: gray;
+      margin-top: 4px;
+    }
+
+    img.chat-image {
+      max-width: 150px;
+      display: block;
+      margin-top: 5px;
+    }
+
+    textarea {
+      width: 100%;
+      font-size: 12px;
+      padding: 6px;
+      resize: none;
+      overflow: hidden;
+      line-height: 1.4em;
+    }
+
+    select, input[type="file"], button {
+      width: 100%;
+      font-size: 12px;
+      padding: 6px;
+      margin-top: 6px;
+    }
+
+    #sendButton {
+      width: 20%;
+      height: 40px;
+      font-size: 14px;
+      padding: 6px;
+      background-color: #ff9f9f;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+    }
+
+    #sendButton:hover {
+      background-color: #ff6f6f;
     }
   </style>
 </head>
 <body>
-  <div id="passwordPage">
-    <img src="neil2.jpeg" alt="ネイル画像" style="width: 100%; display: block; margin-bottom: 1em;">
-    <h2>Nailie</h2>
-    <input type="password" id="passwordInput" placeholder="パスワードを入力">
-    <button onclick="checkPassword()">入室</button>
-  </div>
-
-  <div id="userSelectPage">
-    <h3>あなたは誰？</h3>
-    <button onclick="selectUser('けんじ')">けんじ</button>
-    <button onclick="selectUser('なっちゃん')">なっちゃん</button>
-  </div>
-
-  <div id="chatPage">
-    <h2>Nailie</h2>
-    <div>
-      投稿内容:<br>
-      <textarea id="messageInput" placeholder="メッセージを入力"></textarea>
+  <div class="container">
+    <!-- パスワード画面 -->
+    <div id="passwordScreen">
+      <img src="nail2.jpeg" alt="ネイル画像">
+      <h3>パスワードを入力してください</h3>
+      <input type="password" id="passwordInput" placeholder="パスワード">
+      <button onclick="checkPassword()">確認</button>
     </div>
-    <div>
-      画像: <input type="file" id="imageInput" accept="image/*">
+
+    <!-- チャット画面 -->
+    <div id="chatScreen">
+      <h2>Nailie</h2>
+      <div id="messages"></div>
+      <select id="name">
+        <option value="けんじ">けんじ</option>
+        <option value="なっちゃん" selected>なっちゃん</option>
+      </select>
+      <textarea id="message" placeholder="メッセージを入力（改行もOK）" oninput="autoResize(this)"></textarea>
+      <input type="file" id="imageInput" accept="image/*">
+      <button id="sendButton" onclick="sendMessage()">送信</button>
     </div>
-    <button onclick="sendMessage()">送信</button>
-    <div id="messages" style="margin-top:2em; max-height: 400px; overflow-y: scroll;"></div>
   </div>
 
+  <!-- Firebase SDK -->
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
-    import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-storage.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
-      apiKey: "AIzaSyBhdfO06RZhx6q-FNL52CNMGBphMC4VzS8",
-      authDomain: "nailie-5158b.firebaseapp.com",
-      projectId: "nailie-5158b",
-      storageBucket: "nailie-5158b.appspot.com",
-      messagingSenderId: "182019991994",
-      appId: "1:182019991994:web:e5589a00dfb07d5efcfd0e"
+      apiKey: "AIzaSyDka0qWoys874fA2GbVhGGecLtCoze2Pzw",
+      authDomain: "zubudoro-chat.firebaseapp.com",
+      projectId: "zubudoro-chat",
+      storageBucket: "zubudoro-chat.appspot.com",
+      messagingSenderId: "476549774973",
+      appId: "1:476549774973:web:3b4923256340bd4a3c3b14"
     };
 
     const app = initializeApp(firebaseConfig);
@@ -123,92 +178,84 @@
     const storage = getStorage(app);
     const messagesRef = collection(db, "messages");
 
-    let currentUser = "";
-    const messagesDiv = document.getElementById("messages");
-    const messageInput = document.getElementById("messageInput");
-    const imageInput = document.getElementById("imageInput");
-
-    async function sendMessage() {
-      const message = messageInput.value.trim();
-      const imageFile = imageInput.files[0];
-
-      if (!currentUser || (!message && !imageFile)) {
-        alert("メッセージまたは画像を入力してください。");
-        return;
-      }
-
-      try {
-        let imageUrl = "";
-        if (imageFile) {
-          const imageRef = ref(storage, `images/${Date.now()}_${imageFile.name}`);
-          const snapshot = await uploadBytes(imageRef, imageFile);
-          imageUrl = await getDownloadURL(snapshot.ref);
-        }
-
-        const docData = {
-          name: currentUser,
-          message,
-          timestamp: serverTimestamp()
-        };
-        if (imageUrl) docData.imageUrl = imageUrl;
-
-        await addDoc(messagesRef, docData);
-        messageInput.value = "";
-        imageInput.value = "";
-      } catch (error) {
-        console.error("送信エラー:", error);
-        alert("送信に失敗しました: " + error.message);
-      }
-    }
-
-    const q = query(messagesRef, orderBy("timestamp", "asc"));
+    const q = query(messagesRef, orderBy("timestamp"));
     onSnapshot(q, (snapshot) => {
+      const messagesDiv = document.getElementById("messages");
       messagesDiv.innerHTML = "";
       snapshot.forEach((doc) => {
         const data = doc.data();
-        const msgDiv = document.createElement("div");
-
-        const side = data.name === currentUser ? "right" : "left";
-        msgDiv.className = `message ${side}`;
-
+        const className = data.name === "けんじ" ? "kenji" : "nacchan";
         const icon = data.name === "けんじ" ? "kenji.png" : "nacchan.png";
-        const time = data.timestamp?.toDate().toLocaleString("ja-JP") || "";
 
-        msgDiv.innerHTML = `
-          <div><img src="${icon}" class="icon"> <strong>${data.name}</strong></div>
-          <div>${(data.message || "").replace(/\n/g, "<br>")}</div>
-          ${data.imageUrl ? `<img class="uploaded" src="${data.imageUrl}">` : ""}
-          <div class="message-time">${time}</div>
+        let html = `
+          <div class="message ${className}">
+            <img class="chat-icon" src="${icon}" alt="${data.name}">
+            <div class="message-content">
+              <strong>${data.name}</strong><br>
+              ${data.message.replace(/\n/g, "<br>")}
         `;
-        messagesDiv.appendChild(msgDiv);
+        if (data.imageUrl) {
+          html += `<br><img src="${data.imageUrl}" class="chat-image">`;
+        }
+        if (data.timestamp?.toDate) {
+          const time = data.timestamp.toDate().toLocaleString();
+          html += `<time>${time}</time>`;
+        }
+        html += `</div></div>`;
+        messagesDiv.innerHTML += html;
       });
-      requestAnimationFrame(() => {
-        messagesDiv.scrollTop = messagesDiv.scrollHeight;
-      });
+      setTimeout(() => {
+  messagesDiv.scrollTop = messagesDiv.scrollHeight;
+}, 100); // 100ミリ秒後にスクロール
     });
 
-    messageInput.addEventListener("input", () => {
-      messageInput.style.height = "auto";
-      messageInput.style.height = `${messageInput.scrollHeight}px`;
-    });
+    window.sendMessage = async () => {
+      const name = document.getElementById("name").value;
+      const messageInput = document.getElementById("message");
+      const message = messageInput.value.trim();
+      const fileInput = document.getElementById("imageInput");
+      const file = fileInput.files[0];
 
-    window.checkPassword = function () {
+      let imageUrl = null;
+      try {
+        if (file) {
+          const imageRef = ref(storage, `images/${Date.now()}_${file.name}`);
+          const snapshot = await uploadBytes(imageRef, file);
+          imageUrl = await getDownloadURL(snapshot.ref);
+        }
+
+        if (name && (message || imageUrl)) {
+          await addDoc(messagesRef, {
+            name,
+            message,
+            imageUrl,
+            timestamp: serverTimestamp()
+          });
+
+          messageInput.value = "";
+          fileInput.value = "";
+        }
+      } catch (error) {
+        console.error("送信エラー:", error);
+        alert("送信に失敗しました");
+      }
+    };
+
+    window.checkPassword = () => {
       const input = document.getElementById("passwordInput").value;
-      if (input === "0728") {
-        document.getElementById("passwordPage").style.display = "none";
-        document.getElementById("userSelectPage").style.display = "block";
+      const correctPassword = "0728";
+      if (input === correctPassword) {
+        document.getElementById("passwordScreen").style.display = "none";
+        document.getElementById("chatScreen").style.display = "block";
       } else {
         alert("パスワードが違います");
       }
     };
 
-    window.selectUser = function (name) {
-      currentUser = name;
-      document.getElementById("userSelectPage").style.display = "none";
-      document.getElementById("chatPage").style.display = "block";
+    window.autoResize = (textarea) => {
+      textarea.style.height = 'auto';
+      textarea.style.height = (textarea.scrollHeight) + 'px';
     };
-
-    document.getElementById("passwordPage").style.display = "block";
   </script>
 </body>
 </html>
