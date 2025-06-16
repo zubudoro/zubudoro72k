@@ -9,7 +9,7 @@
   <style>
   body {
     font-family: 'M PLUS Rounded 1c', sans-serif;
-    background: linear-gradient(to right, #ccf2f4, #d9f99d);
+    background-color: #fce8e6;
     margin: 0;
     padding: 0;
   }
@@ -166,7 +166,7 @@
     <!-- チャット画面 -->
     <div id="chatScreen">
       <div id="messages"></div>
-      <select id="name">
+      <select id="name" onchange="changeName()">
         <option value="けんじ">けんじ</option>
         <option value="なっちゃん" selected>なっちゃん</option>
       </select>
@@ -276,10 +276,27 @@
   }
 };
 
-    window.autoResize = (textarea) => {
-      textarea.style.height = 'auto';
-      textarea.style.height = (textarea.scrollHeight) + 'px';
-    };
-  </script>
-</body>
-</html>
+window.autoResize = (textarea) => {
+  textarea.style.height = 'auto';
+  textarea.style.height = (textarea.scrollHeight) + 'px';
+};
+
+// 名前に応じて入力欄の背景色を変える
+window.changeName = () => {
+  const name = document.getElementById("name").value;
+  const messageInput = document.getElementById("message");
+
+  if (name === "けんじ") {
+    messageInput.style.backgroundColor = "#ccffcc"; // 黄緑
+  } else if (name === "なっちゃん") {
+    messageInput.style.backgroundColor = "#ccf2ff"; // 水色
+  } else {
+    messageInput.style.backgroundColor = "white"; // デフォルト
+  }
+};
+
+// 読み込み時に初期化
+window.onload = () => {
+  changeName(); // 初期表示
+};
+</script>
