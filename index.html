@@ -241,16 +241,22 @@
       }
     };
 
-    window.checkPassword = () => {
-      const input = document.getElementById("passwordInput").value;
-      const correctPassword = "0728";
-      if (input === correctPassword) {
-        document.getElementById("passwordScreen").style.display = "none";
-        document.getElementById("chatScreen").style.display = "block";
-      } else {
-        alert("パスワードが違います");
-      }
-    };
+ window.checkPassword = () => {
+  const input = document.getElementById("passwordInput").value;
+  const correctPassword = "0728";
+  if (input === correctPassword) {
+    document.getElementById("passwordScreen").style.display = "none";
+    document.getElementById("chatScreen").style.display = "block";
+
+    // ← ここで自動スクロールを追加
+    setTimeout(() => {
+      const messagesDiv = document.getElementById("messages");
+      messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }, 100);
+  } else {
+    alert("パスワードが違います");
+  }
+};
 
     window.autoResize = (textarea) => {
       textarea.style.height = 'auto';
