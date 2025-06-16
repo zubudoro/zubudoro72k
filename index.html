@@ -22,12 +22,14 @@
   /* ...（省略）... */
 
   #passwordScreen img {
-    width: 100vw;
-    height: auto;
-    display: block;
-    margin: 0;
-    border-radius: 0;
-  }
+  width: 105vw;     /* ビューポート幅の105％に拡大 */
+  max-width: none;  /* 最大幅制限解除 */
+  height: auto;
+  display: block;
+  margin: 0 -2.5vw; /* 左右にマイナスマージンで余白を消す */
+  border-radius: 0;
+  object-fit: cover; /* 画像のトリミングで拡大に対応 */
+}
 
   #passwordScreen input[type="password"] {
     width: 100%;
