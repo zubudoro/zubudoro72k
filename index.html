@@ -268,12 +268,13 @@ try {
       "Content-Type": "application/x-www-form-urlencoded"
     },
     body: new URLSearchParams({
-      token: pushoverToken,
-      user: userKey,
-      title: "Nailie - おすすめネイル情報",
-      message: "今週のおすすめネイルが届いています💅✨",
-      sound: "pushover"
-    })
+  token: pushoverToken,
+  user: userKey,
+  title: "Nailie - おすすめネイル情報",
+  message: "今週のおすすめネイルが届いています💅✨",
+  sound: "pushover",
+  priority: "1" // ← 追加
+})
   });
   console.log("Pushover通知 送信完了");
 } catch (e) {
