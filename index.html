@@ -252,6 +252,34 @@
 
           messageInput.value = "";
           fileInput.value = "";
+          // Pushover通知のための追加コード
+try {
+  const pushoverToken = "a4hbpb1eg2n8jf9vup3w7ee7o4gzmm"; // あなたのAPIトークン
+  const userKeys = {
+    "けんじ": "ufcwuk7h2fa39r4svr28yu3d9i5ow8",
+    "なっちゃん": "uejq941dr8xhxobog6n8mfuje4x3a6"
+  };
+  const recipient = name === "けんじ" ? "なっちゃん" : "けんじ";
+  const userKey = userKeys[recipient];
+
+  await fetch("https://api.pushover.net/1/messages.json", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded"
+    },
+    body: new URLSearchParams({
+      token: pushoverToken,
+      user: userKey,
+      title: "Nailie - おすすめネイル情報",
+      message: "今週のおすすめネイルが届いています💅✨",
+      sound: "pushover"
+    })
+  });
+  console.log("Pushover通知 送信完了");
+} catch (e) {
+  console.error("Pushover通知 失敗", e);
+}
+
         }
       } catch (error) {
         console.error("送信エラー:", error);
