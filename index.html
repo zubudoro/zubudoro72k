@@ -1,3 +1,5 @@
+最新の
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -177,14 +179,10 @@
   </div>
 
   <!-- Firebase SDK -->
-
-<script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-  import {
-    getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp,
-    doc, updateDoc, deleteDoc
-  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDka0qWoys874fA2GbVhGGecLtCoze2Pzw",
@@ -205,44 +203,27 @@
       const messagesDiv = document.getElementById("messages");
       messagesDiv.innerHTML = "";
       snapshot.forEach((doc) => {
-  const data = doc.data();
-  const messageId = doc.id;
-  const className = data.name === "けんじ" ? "kenji" : "nacchan";
-  const icon = data.name === "けんじ" ? "kenji.png" : "nacchan.png";
-  const isMyMessage = data.name === document.getElementById("name").value;
+        const data = doc.data();
+        const className = data.name === "けんじ" ? "kenji" : "nacchan";
+        const icon = data.name === "けんじ" ? "kenji.png" : "nacchan.png";
 
-  let html = `
-    <div class="message ${className}">
-      <img class="chat-icon" src="${icon}" alt="${data.name}">
-      <div class="message-content">
-        <strong>${data.name}</strong><br>
-        ${data.message.replace(/\n/g, "<br>")}
-  `;
-
-  if (data.imageUrl) {
-    html += `<br><img src="${data.imageUrl}" class="chat-image">`;
-  }
-
-  if (data.timestamp?.toDate) {
-    const time = data.timestamp.toDate().toLocaleString();
-    html += `<time>${time}</time>`;
-    if (data.edited) {
-      html += `<span style="font-size: 10px; color: red; margin-left: 6px;">(編集済)</span>`;
-    }
-  }
-
-  if (isMyMessage) {
-    html += `
-      <div style="margin-top:4px;">
-        <button onclick="editMessage('${messageId}', \`${data.message.replace(/`/g, "\\`")}\`)">編集</button>
-        <button onclick="deleteMessage('${messageId}')">削除</button>
-      </div>
-    `;
-  }
-
-  html += `</div></div>`;
-  messagesDiv.innerHTML += html;
-});
+        let html = `
+          <div class="message ${className}">
+            <img class="chat-icon" src="${icon}" alt="${data.name}">
+            <div class="message-content">
+              <strong>${data.name}</strong><br>
+              ${data.message.replace(/\n/g, "<br>")}
+        `;
+        if (data.imageUrl) {
+          html += `<br><img src="${data.imageUrl}" class="chat-image">`;
+        }
+        if (data.timestamp?.toDate) {
+          const time = data.timestamp.toDate().toLocaleString();
+          html += `<time>${time}</time>`;
+        }
+        html += `</div></div>`;
+        messagesDiv.innerHTML += html;
+      });
       setTimeout(() => {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }, 100); // 100ミリ秒後にスクロール
@@ -348,31 +329,5 @@ window.changeName = () => {
 // 読み込み時に初期化
 window.onload = () => {
   changeName(); // 初期表示
-};
-
-window.editMessage = (id, currentText) => {
-  const newText = prompt("新しいメッセージを入力してください：", currentText);
-  if (newText !== null) {
-    const docRef = doc(db, "messages", id);
-    updateDoc(docRef, {
-      message: newText,
-      edited: true
-    }).then(() => {
-      console.log("編集完了");
-    }).catch((err) => {
-      console.error("編集失敗", err);
-    });
-  }
-};
-
-window.deleteMessage = (id) => {
-  if (confirm("このメッセージを削除しますか？")) {
-    const docRef = doc(db, "messages", id);
-    deleteDoc(docRef).then(() => {
-      console.log("削除完了");
-    }).catch((err) => {
-      console.error("削除失敗", err);
-    });
-  }
 };
 </script>
