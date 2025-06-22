@@ -1,5 +1,3 @@
-最新の
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -9,6 +7,44 @@
   <!-- Google Fonts -->
   <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c&display=swap" rel="stylesheet">
   <style>
+
+.message-menu {
+  position: relative;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.menu-options {
+  display: none;
+  position: absolute;
+  right: 0;
+  background: #fff;
+  border: 1px solid #ccc;
+  z-index: 10;
+  border-radius: 6px;
+  box-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+}
+
+.message-menu:hover .menu-options {
+  display: block;
+}
+
+.menu-options button {
+  display: block;
+  width: 100%;
+  border: none;
+  background: none;
+  padding: 6px 12px;
+  cursor: pointer;
+  text-align: left;
+  font-size: 12px;
+}
+
+.menu-options button:hover {
+  background-color: #f0f0f0;
+}
+
   body {
     font-family: 'M PLUS Rounded 1c', sans-serif;
     background-color: #fce8e6;
@@ -179,10 +215,14 @@
   </div>
 
   <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+  import {
+    getFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp,
+    doc, updateDoc, deleteDoc
+  } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+  import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyDka0qWoys874fA2GbVhGGecLtCoze2Pzw",
@@ -203,27 +243,48 @@
       const messagesDiv = document.getElementById("messages");
       messagesDiv.innerHTML = "";
       snapshot.forEach((doc) => {
-        const data = doc.data();
-        const className = data.name === "けんじ" ? "kenji" : "nacchan";
-        const icon = data.name === "けんじ" ? "kenji.png" : "nacchan.png";
+  const data = doc.data();
+  const messageId = doc.id;
+  const className = data.name === "けんじ" ? "kenji" : "nacchan";
+  const icon = data.name === "けんじ" ? "kenji.png" : "nacchan.png";
 
-        let html = `
-          <div class="message ${className}">
-            <img class="chat-icon" src="${icon}" alt="${data.name}">
-            <div class="message-content">
-              <strong>${data.name}</strong><br>
-              ${data.message.replace(/\n/g, "<br>")}
-        `;
-        if (data.imageUrl) {
-          html += `<br><img src="${data.imageUrl}" class="chat-image">`;
-        }
-        if (data.timestamp?.toDate) {
-          const time = data.timestamp.toDate().toLocaleString();
-          html += `<time>${time}</time>`;
-        }
-        html += `</div></div>`;
-        messagesDiv.innerHTML += html;
-      });
+const myName = localStorage.getItem("chatName") || document.getElementById("name").value;
+const isMyMessage = data.name === myName;
+
+  let html = `
+    <div class="message ${className}">
+      <img class="chat-icon" src="${icon}" alt="${data.name}">
+      <div class="message-content">
+        <strong>${data.name}</strong><br>
+        ${data.message.replace(/\n/g, "<br>")}
+  `;
+
+  if (data.imageUrl) {
+    html += `<br><img src="${data.imageUrl}" class="chat-image">`;
+  }
+
+  if (data.timestamp?.toDate) {
+    const time = data.timestamp.toDate().toLocaleString();
+    html += `<time>${time}</time>`;
+    if (data.edited) {
+      html += `<span style="font-size: 10px; color: red; margin-left: 6px;">(編集済)</span>`;
+    }
+  }
+
+if (isMyMessage) {
+  html += `
+    <div class="message-menu">⋯
+      <div class="menu-options">
+        <button onclick="editMessage('${messageId}', \`${data.message.replace(/`/g, "\\`")}\`)">編集</button>
+        <button onclick="deleteMessage('${messageId}')">削除</button>
+      </div>
+    </div>
+  `;
+}
+
+  html += `</div></div>`;
+  messagesDiv.innerHTML += html;
+});
       setTimeout(() => {
   messagesDiv.scrollTop = messagesDiv.scrollHeight;
 }, 100); // 100ミリ秒後にスクロール
@@ -312,9 +373,12 @@ window.autoResize = (textarea) => {
   textarea.style.height = (textarea.scrollHeight) + 'px';
 };
 
-// 名前に応じて入力欄の背景色を変える
 window.changeName = () => {
   const name = document.getElementById("name").value;
+
+  // 🔽 追加！選んだ名前を保存
+  localStorage.setItem("chatName", name);
+
   const messageInput = document.getElementById("message");
 
   if (name === "けんじ") {
@@ -326,8 +390,35 @@ window.changeName = () => {
   }
 };
 
-// 読み込み時に初期化
 window.onload = () => {
-  changeName(); // 初期表示
+  const savedName = localStorage.getItem("chatName") || "なっちゃん";
+  document.getElementById("name").value = savedName;
+  changeName();
+};
+
+window.editMessage = (id, currentText) => {
+  const newText = prompt("新しいメッセージを入力してください：", currentText);
+  if (newText !== null) {
+    const docRef = doc(db, "messages", id);
+    updateDoc(docRef, {
+      message: newText,
+      edited: true
+    }).then(() => {
+      console.log("編集完了");
+    }).catch((err) => {
+      console.error("編集失敗", err);
+    });
+  }
+};
+
+window.deleteMessage = (id) => {
+  if (confirm("このメッセージを削除しますか？")) {
+    const docRef = doc(db, "messages", id);
+    deleteDoc(docRef).then(() => {
+      console.log("削除完了");
+    }).catch((err) => {
+      console.error("削除失敗", err);
+    });
+  }
 };
 </script>
