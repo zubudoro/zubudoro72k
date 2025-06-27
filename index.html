@@ -208,6 +208,12 @@
         <option value="けんじ">けんじ</option>
         <option value="なっちゃん" selected>なっちゃん</option>
       </select>
+      
+      <div id="replyInfo" style="display:none; background:#fff0f0; padding:6px; border-left:4px solid #ff9f9f; margin-bottom:6px;">
+  <span id="replyText" style="font-size:12px;"></span>
+  <button onclick="cancelReply()" style="float:right; background:none; border:none; color:red; cursor:pointer;">✕</button>
+</div>
+
       <textarea id="message" placeholder="メッセージを入力（改行もOK）" oninput="autoResize(this)"></textarea>
       <input type="file" id="imageInput" accept="image/*">
       <button id="sendButton" onclick="sendMessage()">送信</button>
@@ -266,12 +272,14 @@ const myName = localStorage.getItem("chatName") || document.getElementById("name
 const isMyMessage = data.name === myName;
 
   let html = `
-    <div class="message ${className}">
-      <img class="chat-icon" src="${icon}" alt="${data.name}">
-      <div class="message-content">
-        <strong>${data.name}</strong><br>
-        ${data.message.replace(/\n/g, "<br>")}
-  `;
+  <div class="message ${className}">
+    <img class="chat-icon" src="${icon}" alt="${data.name}">
+    <div class="message-content">
+      ${data.replyTo ? `<div style="background:#f8d7da; padding:4px; border-left:3px solid #f00; font-size:11px; margin-bottom:4px;">
+        ↩ ${data.replyTo.name}：${data.replyTo.text}
+      </div>` : ""}
+${data.message.replace(/\n/g, "<br>")}
+`;
 
   if (data.imageUrl) {
     html += `<br><img src="${data.imageUrl}" class="chat-image">`;
@@ -288,10 +296,11 @@ const isMyMessage = data.name === myName;
 if (isMyMessage) {
   html += `
     <div class="message-menu">⋯
-      <div class="menu-options">
-        <button onclick="editMessage('${messageId}', \`${data.message.replace(/`/g, "\\`")}\`)">編集</button>
-        <button onclick="deleteMessage('${messageId}')">削除</button>
-      </div>
+<div class="menu-options">
+  <button onclick="replyMessage('${data.name}', \`${data.message.replace(/`/g, "\\`")}\`)">返信</button>
+  <button onclick="editMessage('${messageId}', \`${data.message.replace(/`/g, "\\`")}\`)">編集</button>
+  <button onclick="deleteMessage('${messageId}')">削除</button>
+</div>
     </div>
   `;
 }
@@ -340,16 +349,20 @@ window.sendMessage = async () => {
 
     // 共通：Firestoreに追加
     await addDoc(messagesRef, {
-      name,
-      message,
-      imageUrl,
-      timestamp: serverTimestamp()
-    });
+  name,
+  message,
+  imageUrl,
+  replyTo: replyTo ? { name: replyTo.name, text: replyTo.text } : null,
+  timestamp: serverTimestamp()
+});
 
     // 入力リセット
-    messageInput.value = "";
+    messageInput.style.height = 'auto';
     fileInput.value = "";
 
+    replyTo = null;
+    document.getElementById("replyInfo").style.display = "none";
+    
     // 🔔 Pushover 通知処理
     try {
       const pushoverToken = "a4hbpb1eg2n8jf9vup3w7ee7o4gzmm";
@@ -455,4 +468,18 @@ window.deleteMessage = (id) => {
     });
   }
 };
+
+let replyTo = null;
+
+window.replyMessage = (name, text) => {
+  replyTo = { name, text };
+  document.getElementById("replyText").innerText = `↩ ${name}：${text}`;
+  document.getElementById("replyInfo").style.display = "block";
+};
+
+window.cancelReply = () => {
+  replyTo = null;
+  document.getElementById("replyInfo").style.display = "none";
+};
+
 </script>
