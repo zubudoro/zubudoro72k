@@ -293,17 +293,18 @@ ${data.message.replace(/\n/g, "<br>")}
     }
   }
 
+html += `<div class="message-menu">⋯<div class="menu-options">`;
+
+html += `<button onclick="replyMessage('${data.name}', \`${data.message.replace(/`/g, "\\`")}\`)">返信</button>`;
+
 if (isMyMessage) {
   html += `
-    <div class="message-menu">⋯
-<div class="menu-options">
-  <button onclick="replyMessage('${data.name}', \`${data.message.replace(/`/g, "\\`")}\`)">返信</button>
-  <button onclick="editMessage('${messageId}', \`${data.message.replace(/`/g, "\\`")}\`)">編集</button>
-  <button onclick="deleteMessage('${messageId}')">削除</button>
-</div>
-    </div>
+    <button onclick="editMessage('${messageId}', \`${data.message.replace(/`/g, "\\`")}\`)">編集</button>
+    <button onclick="deleteMessage('${messageId}')">削除</button>
   `;
 }
+
+html += `</div></div>`;
 
   html += `</div></div>`;
   messagesDiv.innerHTML += html;
@@ -357,7 +358,6 @@ window.sendMessage = async () => {
 });
 
     // 入力リセット
-    messageInput.value = "";
     messageInput.style.height = 'auto';
     fileInput.value = "";
 
