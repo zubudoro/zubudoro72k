@@ -278,7 +278,9 @@ const isMyMessage = data.name === myName;
       ${data.replyTo ? `<div style="background:#f8d7da; padding:4px; border-left:3px solid #f00; font-size:11px; margin-bottom:4px;">
         ↩ ${data.replyTo.name}：${data.replyTo.text}
       </div>` : ""}
-${data.message.replace(/\n/g, "<br>")}
+let formattedMessage = data.message
+  .replace(/(https?:\/\/[^\s]+)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">$1</a>')
+  .replace(/\n/g, "<br>");
 `;
 
   if (data.imageUrl) {
